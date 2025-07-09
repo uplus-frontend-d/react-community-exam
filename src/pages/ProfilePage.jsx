@@ -18,12 +18,16 @@ function ProfilePage() {
         <p className="mb-2">
           <span className="font-semibold">Email:</span> {user.email}
         </p>
-        {user.user_metadata?.full_name && (
+        <p className="mb-2">
+          <span className="font-semibold">Joined at:</span>{" "}
+          {new Date(user.created_at).toLocaleDateString()}
+        </p>
+        {/* {user.user_metadata?.full_name && (
           <p className="mb-2">
             <span className="font-semibold">Name:</span>{" "}
             {user.user_metadata.full_name}
           </p>
-        )}
+        )} */}
         <button
           className="btn btn-error mt-4"
           onClick={() => {

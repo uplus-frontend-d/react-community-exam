@@ -29,7 +29,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       <button
         className="join-item btn"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={currentPage >= totalPages || totalPages === 0}
       >
         »
       </button>
