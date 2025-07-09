@@ -56,9 +56,7 @@ const router = createBrowserRouter([
         path: "products",
         element: <ProductListPage />,
       },
-        path: "detail",
-        element: <PostDetailPage />,
-      },
+      // 잘못된 중괄호 및 경로 정의 제거
       // 앞으로 다른 페이지들을 이곳에 추가할 수 있습니다.
       // { path: "login", element: <LoginPage /> }
       {
