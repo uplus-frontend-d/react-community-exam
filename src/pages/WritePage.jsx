@@ -2,16 +2,33 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { writePost } from "../apis/writeApi";
+import { useUserStore } from "../stores/userStore";
 
 // 1. Zod로 유효성 검사 스키마 정의
 const postSchema = z.object({
   title: z.string().min(3, "제목은 3글자 이상이어야 합니다."),
-  author: z.string().nonempty("작성자 이름을 입력해주세요."),
+  // author: z.string().nonempty("작성자 이름을 입력해주세요."),
   content: z.string().min(10, "내용은 10글자 이상이어야 합니다."),
 });
 
 function WritePage() {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+
+  // 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  // 로그인하지 않은 경우 로딩 화면 표시
+  if (!user) {
+    return <div className="p-8 text-center">로딩 중...</div>;
+  }
 
   // 2. useForm 훅으로 폼 상태 및 함수 가져오기
   const {
@@ -25,18 +42,11 @@ function WritePage() {
   // 3. 폼 제출 시 실행될 함수 정의 (유효성 검사 통과 후)
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 폼 데이터를 JSON 문자열로 변환하여 body에 담아 전송
-        body: JSON.stringify(data),
+      // writeApi의 writePost 함수 사용
+      await writePost({
+        title: data.title,
+        content: data.content,
       });
-
-      if (!response.ok) {
-        throw new Error("서버에서 게시물 생성에 실패했습니다.");
-      }
 
       // 요청이 성공적으로 완료된 후, 목록 페이지로 이동
       navigate("/posts");
@@ -64,22 +74,6 @@ function WritePage() {
           />
           {errors.title && (
             <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
-          )}
-        </div>
-
-        <div className="form-control">
-          <label className="label" htmlFor="author">
-            <span className="label-text">작성자</span>
-          </label>
-          <input
-            id="author"
-            type="text"
-            placeholder="이름을 입력하세요"
-            className="input input-bordered w-full"
-            {...register("author")}
-          />
-          {errors.author && (
-            <p className="text-red-500 text-xs mt-1">{errors.author.message}</p>
           )}
         </div>
 

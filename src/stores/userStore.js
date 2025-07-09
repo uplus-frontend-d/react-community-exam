@@ -6,6 +6,8 @@ export const useUserStore = create(
     (set) => ({
       user: null,
       setUser: (user) => set({ user }),
+      updateUser: (partial) =>
+        set((state) => ({ user: { ...state.user, ...partial } })),
       clearUser: () => set({ user: null }),
     }),
     {
