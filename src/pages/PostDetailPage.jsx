@@ -4,6 +4,7 @@ import { supabase } from "../libs/supabase";
 
 function PostDetailPage() {
   const { id } = useParams();
+  const [comments, setComments] = useState([]);
   const [post, setPost] = useState({
     title: "",
     author: "",
@@ -13,24 +14,37 @@ function PostDetailPage() {
   // 나머지 임시 게시글 데이터
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
-
+  async function fetchPost() {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("title, author, content, created_at")
+      .eq("id", Number(id))
+      .single();
+    if (data) setPost(data);
+  }
+  async function fetchComments() {
+    const { data, error } = await supabase
+      .from("comments")
+      .select("*")
+      .eq("post_id", Number(id))
+      .order("created_at", { ascending: false });
+    if (data) setComments(data);
+  }
   useEffect(() => {
-    async function fetchPost() {
-      const { data, error } = await supabase
-        .from("posts")
-        .select("title, author, content, created_at")
-        .eq("id", id)
-        .single();
-      if (data) setPost(data);
-    }
     fetchPost();
+    fetchComments();
   }, [id]);
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
     // 실제로는 댓글 저장 로직이 들어가야 함
-    alert("댓글: " + comment);
+    const { data, error } = await supabase.from("comments").insert({
+      post_id: id,
+      content: comment,
+    });
+    if (error) console.error("댓글 저장 중 오류 발생:", error);
     setComment("");
+    await fetchComments();
   };
 
   return (
@@ -62,6 +76,11 @@ function PostDetailPage() {
             댓글 작성
           </button>
         </form>
+        <div className="mt-8">
+          {comments.map((comment) => (
+            <div key={comment.id}>{comment.content}</div>
+          ))}
+        </div>
       </div>
     </div>
   );
