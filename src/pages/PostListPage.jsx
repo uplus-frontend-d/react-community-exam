@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import { fetchPosts } from "../apis/postApi";
 import { useUserStore } from "../stores/userStore";
+import { useParams } from "react-router-dom";
 
 function PostListPage() {
   const [posts, setPosts] = useState([]);
@@ -13,6 +14,9 @@ function PostListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
+
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -73,9 +77,12 @@ function PostListPage() {
               <tr key={post.id} className="hover">
                 <th>{post.id}</th>
                 <td>
-                  <a href="#" className="link link-hover">
+                  <span
+                    className="link link-hover cursor-pointer"
+                    onClick={() => navigate(`/posts/${post.id}`)}
+                  >
                     {post.title}
-                  </a>
+                  </span>
                 </td>
                 <td>{post.content}</td>
                 <td>{post.created_at.split("T")[0]}</td>
