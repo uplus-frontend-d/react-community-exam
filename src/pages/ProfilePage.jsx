@@ -63,6 +63,22 @@ function ProfilePage() {
     <div className="container mx-auto p-8 flex flex-col gap-6 items-center">
       <h1 className="text-3xl font-bold">내 정보</h1>
       <div className="w-full flex justify-end">
+        <p className="mb-2">
+          <span className="font-semibold">ID:</span> {user.id}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Email:</span> {user.email}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Joined at:</span>{" "}
+          {new Date(user.created_at).toLocaleDateString()}
+        </p>
+        {/* {user.user_metadata?.full_name && (
+          <p className="mb-2">
+            <span className="font-semibold">Name:</span>{" "}
+            {user.user_metadata.full_name}
+          </p>
+        )} */}
         <button
           className="btn btn-error"
           onClick={() => {

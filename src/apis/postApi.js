@@ -1,6 +1,6 @@
 import { supabase } from "../libs/supabase";
 
-export const fetchPosts = async (page = 1, limit = 20) => {
+export const fetchPosts = async (page = 1, limit = 10) => {
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -12,15 +12,24 @@ export const fetchPosts = async (page = 1, limit = 20) => {
 
   const offset = (page - 1) * limit;
 
-  const { data, count, error } = await supabase
+  // 전체 개수를 가져오는 쿼리
+  const { count: totalCount, error: countError } = await supabase
+    .from("posts")
+    .select("*", { count: "exact", head: true });
+
+  if (countError) {
+    throw new Error(countError.message);
+  }
+
+  // 페이지 데이터를 가져오는 쿼리
+  const { data, error } = await supabase
     .from("posts")
     .select(
       `
-      id, title, content, created_at,
-      users(email)
+      id, title, content, created_at
     `
     )
-    .order("id", { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) {
@@ -29,6 +38,6 @@ export const fetchPosts = async (page = 1, limit = 20) => {
 
   return {
     posts: data ?? [],
-    totalCount: count ?? 0,
+    totalCount: totalCount ?? 0,
   };
 };

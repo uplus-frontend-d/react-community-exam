@@ -2,16 +2,18 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import { fetchPosts } from "../apis/postApi";
+import { useUserStore } from "../stores/userStore";
 import { useParams } from "react-router-dom";
 
 function PostListPage() {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useUserStore();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const itemsPerPage = 20;
+  const itemsPerPage = 10;
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -26,7 +28,8 @@ function PostListPage() {
           itemsPerPage
         );
 
-        setTotalPages(Math.ceil(totalCount / itemsPerPage));
+        const calculatedTotalPages = Math.ceil(totalCount / itemsPerPage);
+        setTotalPages(calculatedTotalPages);
         setPosts(fetchedPosts);
       } catch (e) {
         setError(e.message);
@@ -39,7 +42,7 @@ function PostListPage() {
   }, [currentPage]);
 
   const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
+    if (page > 0 && page <= totalPages && totalPages > 0) {
       setCurrentPage(page);
     }
   };
@@ -65,7 +68,7 @@ function PostListPage() {
             <tr>
               <th>번호</th>
               <th>제목</th>
-              <th>작성자</th>
+              <th>본문</th>
               <th>작성일</th>
             </tr>
           </thead>
@@ -81,7 +84,7 @@ function PostListPage() {
                     {post.title}
                   </span>
                 </td>
-                <td>{post.users.email}</td>
+                <td>{post.content}</td>
                 <td>{post.created_at.split("T")[0]}</td>
               </tr>
             ))}
@@ -95,9 +98,11 @@ function PostListPage() {
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
-        <Link to="/write" className="btn btn-primary">
-          글쓰기
-        </Link>
+        {user && (
+          <Link to="/write" className="btn btn-primary">
+            글쓰기
+          </Link>
+        )}
       </div>
     </div>
   );
